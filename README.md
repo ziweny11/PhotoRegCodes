@@ -56,5 +56,10 @@ For visualizing the Gaussian Splatting and Point Clouds, use the following comma
   python PC_viz.py --checkpoint gnew.pth
   ```
 
+### Evaluation
+    ```
+    python render.py -m <path to trained model>
+    python metrics.py -m <path to trained model>
+    ```
 ## Support
 For any issues or questions, please open an issue on this GitHub repository.

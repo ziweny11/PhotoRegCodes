@@ -4,7 +4,7 @@ Welcome to the official repository for PhotoReg, a project dedicated to the regi
 
 ## Quick Links
 - **Our Website:** [PhotoReg Project](https://ziweny11.github.io/photoreg/)
-- **Our Paper on Arxiv:** *link to the paper*
+- **Our Paper on Arxiv:** [*link to the paper*](https://arxiv.org/abs/2410.05044)
 
 ## Setup Instructions
 

@@ -6,6 +6,11 @@ Welcome to the official repository for PhotoReg, a project dedicated to the regi
 - **Our Website:** [PhotoReg Project](https://ziweny11.github.io/photoreg/)
 - **Our Paper on Arxiv:** [*link to the paper*](https://arxiv.org/abs/2410.05044)
 
+
+## Upcoming Features
+- **Complete Code Demo**: We are working hard to release a complete demo of PhotoReg. Expect to see this released by October 15, 2024.
+
+
 ## Setup Instructions
 
 Follow these steps to set up and run the PhotoReg code on your local machine.
@@ -61,9 +66,6 @@ For visualizing the Gaussian Splatting and Point Clouds, use the following comma
   python render.py -m <path to trained model>
   python metrics.py -m <path to trained model>
   ```
-
-## Upcoming Features
-- **Complete Code Demo**: We are working hard to release a complete demo of PhotoReg. Expect to see this released by October 15, 2024.
 
 ## Citation
 If you find our work useful in your research, please consider citing:

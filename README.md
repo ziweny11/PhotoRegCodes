@@ -61,5 +61,19 @@ For visualizing the Gaussian Splatting and Point Clouds, use the following comma
   python render.py -m <path to trained model>
   python metrics.py -m <path to trained model>
   ```
+## Citation
+If you find our work useful in your research, please consider citing:
+
+```bibtex
+@misc{yuan2024photoregphotometricallyregistering3d,
+title={PhotoReg: Photometrically Registering 3D Gaussian Splatting Models}, 
+author={Ziwen Yuan and Tianyi Zhang and Matthew Johnson-Roberson and Weiming Zhi},
+year={2024},
+eprint={2410.05044},
+archivePrefix={arXiv},
+primaryClass={cs.RO},
+url={https://arxiv.org/abs/2410.05044}, 
+}
+
 ## Support
 For any issues or questions, please open an issue on this GitHub repository.

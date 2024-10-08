@@ -61,6 +61,10 @@ For visualizing the Gaussian Splatting and Point Clouds, use the following comma
   python render.py -m <path to trained model>
   python metrics.py -m <path to trained model>
   ```
+
+## Upcoming Features
+- **Complete Code Demo**: We are working hard to release a complete demo of PhotoReg. Expect to see this released by October 15, 2024.
+
 ## Citation
 If you find our work useful in your research, please consider citing:
 

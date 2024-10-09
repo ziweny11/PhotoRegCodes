@@ -8,7 +8,7 @@ Welcome to the official repository for PhotoReg, a project dedicated to the regi
 
 
 ## Upcoming Features
-- **Complete Code Demo**: We are working hard to release a complete code demo of PhotoReg. Expect to fix it by October 15, 2024.
+- **Complete Code Demo**: Current code have issue running. We are working hard to release a complete code demo of PhotoReg. Expect to fix it by October 15, 2024.
 
 
 ## Setup Instructions

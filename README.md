@@ -7,10 +7,9 @@ Welcome to the official repository for PhotoReg, a project dedicated to the regi
 - **Our Paper on Arxiv:** [*link to the paper*](https://arxiv.org/abs/2410.05044)
 
 
-## Upcoming Features
-- **Complete Code Demo**: Current code have issue running. We are working hard to release a complete code demo of PhotoReg. Expect to fix it by October 15, 2024.
-
-
+## Plan
+- **Complete Code Demo**: We are aware of the current issues with running the code and are actively working to clean it. we are committed to releasing a fully functional code demo of PhotoReg and we expect to have these issues addressed by October 15, 2024. Thank you for your patience and understanding.
+  
 ## Setup Instructions
 
 Follow these steps to set up and run the PhotoReg code on your local machine.

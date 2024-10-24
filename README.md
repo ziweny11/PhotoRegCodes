@@ -1,3 +1,5 @@
+# New code updated! Follow the readme for new environment setup
+
 # PhotoReg Code Releases
 
 Welcome to the official repository for PhotoReg, a project dedicated to the registration of 3D Gaussian Splatting models.
@@ -8,26 +10,17 @@ Welcome to the official repository for PhotoReg, a project dedicated to the regi
 
 
 ## Plan
-- **Complete Code Demo**: We are aware of the current issues with running the code and are actively working to clean it. we are committed to releasing a fully functional code demo of PhotoReg and we expect to have these issues addressed by October 15, 2024. Thank you for your patience and understanding.
-  
+- [ ] Provide toy datasets
+- [ ] update visualization and evaluation
 ## Setup Instructions
 
-Follow these steps to set up and run the PhotoReg code on your local machine.
+Follow these steps to set up and run the PhotoReg code on your local machine. First, 3DGS repo https://github.com/graphdeco-inria/gaussian-splatting is needed.
 
 ### 1. Clone the Necessary Repositories
-First, clone the required repositories using the following commands:
-
-- **3DGS Repository**
+First, clone the required repositories using the following commands. gaussian-splatting is needed for preprocessing datesets and trainining input 3DGS models
   ```
-  git clone git@github.com:graphdeco-inria/gaussian-splatting.git --recursive
+  git clone https://github.com/graphdeco-inria/gaussian-splatting --recursive
   ```
-  
-- **DUSt3R Repository**
-  ```
-  git clone --recursive https://github.com/naver/dust3r
-  ```
-  
-- **PhotoReg Repository**
   ```
   git clone --recursive https://github.com/ziweny11/PhotoRegCodes
   ```
@@ -37,33 +30,58 @@ Navigate to the PhotoReg project directory and install the required Python packa
 
 ```
 cd PhotoRegCodes
-pip install -r requirements.txt
+conda env create --file environment.yaml
+conda activate photoreg
 ```
 
 ### 3. Run the Code
 To process multiple 3DGS models, run the following command:
 
 ```
-python main.py --checkpoint_multi <path to trained model1> <path to trained model2>
+python main.py -s path/to/source1 --start_checkpoint path/to/model/chkpntXXX.pth --start_checkpoint2 path/to/model2/chkpntXXX.pth --campose1 path/to/source1 --campose2 path/to/source2
+
+```
+path/to/source are paths to the <location> of dataset after running convert.py in 3DGS, where the <location> folder should have similar structure as below:
+```
+<location>
+|---images
+|   |---<image 0>
+|   |---<image 1>
+|   |---...
+|---sparse
+    |---0
+        |---cameras.bin
+        |---images.bin
+        |---points3D.bin
 ```
 
+path/to/model/chkpntXXX.pth are paths to the output 3DGS model. By default, it is in the output folder in gaussian-splatting after training, where the chkpntXXX.pth is stoed in folder structured like: 
+```
+<location>
+|---point_cloud
+|   |---...
+|---cameras.json
+|---cfg_args
+|---input.ply
+|---chkpntXXX.pth
+
+```
 ### Visualization Tools
 For visualizing the Gaussian Splatting and Point Clouds, use the following commands:
 
 - **Gaussian Splatting Visualization**
   ```
-  python gs_viz.py --checkpoint gnew.pth
+to be updated
   ```
   
 - **Point Cloud Visualization**
   ```
-  python PC_viz.py --checkpoint gnew.pth
+to be updated
   ```
 
 ### Evaluation
   ```
-  python render.py -m <path to trained model>
-  python metrics.py -m <path to trained model>
+to be updated
   ```
 
 ## Citation

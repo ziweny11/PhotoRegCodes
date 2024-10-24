@@ -71,17 +71,17 @@ For visualizing the Gaussian Splatting and Point Clouds, use the following comma
 
 - **Gaussian Splatting Visualization**
   ```
-to be updated
+  to be updated
   ```
   
 - **Point Cloud Visualization**
   ```
-to be updated
+  to be updated
   ```
 
 ### Evaluation
   ```
-to be updated
+  to be updated
   ```
 
 ## Citation

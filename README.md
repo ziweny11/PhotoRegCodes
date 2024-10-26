@@ -1,5 +1,4 @@
-# New code updated! Follow the readme for new environment setup
-
+# Code is updating, current version facing issues
 # PhotoReg Code Releases
 
 Welcome to the official repository for PhotoReg, a project dedicated to the registration of 3D Gaussian Splatting models.
@@ -10,8 +9,9 @@ Welcome to the official repository for PhotoReg, a project dedicated to the regi
 
 
 ## Plan
+- [ ] Solve all issues
 - [ ] Provide toy datasets
-- [ ] update visualization and evaluation
+- [ ] Update visualization and evaluation
 ## Setup Instructions
 
 Follow these steps to set up and run the PhotoReg code on your local machine. First, 3DGS repo https://github.com/graphdeco-inria/gaussian-splatting is needed.

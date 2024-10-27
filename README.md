@@ -1,4 +1,3 @@
-# Code is updating, current version facing issues
 # PhotoReg Code Releases
 
 Welcome to the official repository for PhotoReg, a project dedicated to the registration of 3D Gaussian Splatting models.

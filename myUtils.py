@@ -6,22 +6,29 @@ from einops import einsum
 import numpy as np
 from utils.general_utils import build_rotation
 
-def transform_shs(shs_feat, rotation_matrix):
-    # print("old", shs_feat)
-    new_shs_feat = shs_feat.clone()
-    # new_shs_feat = new_shs_feat.transpose(1, 2)
 
-    ## rotate shs
-    # switch axes: yzx -> xyz
-    P = torch.tensor(np.array([[0, 0, 1], [1, 0, 0], [0, 1, 0]]), dtype = torch.float32, device="cuda")
+def transform_shs(shs_feat, rotation_matrix):
+    # Ensure all inputs are on the same device, preferably at the start of your function
+    device = rotation_matrix.device  # Use the device from rotation_matrix
+    rotation_matrix = rotation_matrix.to(device)
+    new_shs_feat = shs_feat.clone().to(device)
+
+    # Permutation matrix directly on the correct device
+    P = torch.tensor([[0, 0, 1], 
+                      [1, 0, 0], 
+                      [0, 1, 0]], dtype=torch.float32, device=device)
+
     permuted_rotation_matrix = torch.linalg.inv(P) @ rotation_matrix @ P
     rot_angles = o3._rotation.matrix_to_angles(permuted_rotation_matrix)
 
-    # Construction coefficient
-    D_1 = o3.wigner_D(1, rot_angles[0], - rot_angles[1], rot_angles[2])
-    D_2 = o3.wigner_D(2, rot_angles[0], - rot_angles[1], rot_angles[2])
-    D_3 = o3.wigner_D(3, rot_angles[0], - rot_angles[1], rot_angles[2])
+    a = rot_angles[0].to(device)
+    b = rot_angles[1].to(device)
+    c = rot_angles[2].to(device)
 
+    # Call Wigner D functions
+    D_1 = wigner_D(1, a, -b, c)
+    D_2 = wigner_D(2, a, -b, c)
+    D_3 = wigner_D(3, a, -b, c)
     # rotation of the shs features
     one_degree_shs = new_shs_feat[:, 0:3]
     one_degree_shs = einops.rearrange(one_degree_shs, 'n shs_num rgb -> n rgb shs_num')
@@ -54,13 +61,11 @@ def transform_shs(shs_feat, rotation_matrix):
             )
             three_degree_shs = einops.rearrange(three_degree_shs, 'n rgb shs_num -> n shs_num rgb')
             new_shs_feat[:, 8:15] = three_degree_shs
-    # print("new", new_shs_feat)
     return new_shs_feat
-
-
 
 def gaus_translate(G, t):
     G._xyz = G._xyz + t
+
 def gaus_append(g1, g2, gnew):
     (active_sh_degree,
     xyz,
@@ -85,7 +90,6 @@ def gaus_append(g1, g2, gnew):
     denom2, opt_dict2,
     spatial_lr_scale2) = g2.capture()
     xyz_new = torch.cat((xyz, xyz2), dim=0)
-    # print("this is xyz new", xyz_new)
     features_dc_new = torch.cat((features_dc, features_dc2), dim=0)
     features_rest_new = torch.cat((features_rest, features_rest2), dim=0)
     scaling_new = torch.cat((scaling, scaling2), dim=0)
@@ -103,29 +107,10 @@ def gaus_transform(G, R, t):
     rotate_by_matrix(G, R)
     gaus_translate(G, t)
 
-
-# def rotate_by_matrix(G, rotation_matrix, keep_sh_degree: bool = True):
-#     # rotate xyz
-#     G._xyz = torch.mm(G._xyz, rotation_matrix.t())
-#     gaussian_rotation = build_rotation(G._rotation)
-#     gaussian_rotation = rotation_matrix @ gaussian_rotation
-#     # gaussian_rotation = torch.matmul(gaussian_rotation, rotation_matrix.t())
-#     xyzw_quaternions = R.from_matrix(gaussian_rotation.cpu().detach().numpy()).as_quat()
-#     wxyz_quaternions = xyzw_quaternions
-#     wxyz_quaternions[:, [0, 1, 2, 3]] = wxyz_quaternions[:, [3, 0, 1, 2]]
-#     rotations_from_matrix = torch.tensor(wxyz_quaternions, dtype=torch.float32, device="cuda")
-#     G._rotation = rotations_from_matrix
-#     if keep_sh_degree is False:
-#         print("set sh_degree=0 when rotation transform enabled")
-#         G.sh_degrees = 0
-#     G._features_rest = transform_shs(G._features_rest, rotation_matrix)
-
-
 def rotate_by_matrix(G, rotation_matrix, keep_sh_degree: bool = True):
     G._xyz = torch.mm(G._xyz, rotation_matrix.t())
 
     gaussian_rotation_matrix = build_rotation(G._rotation)
-    # print(gaussian_rotation_matrix)
     gaussian_rotation_matrix = rotation_matrix @ gaussian_rotation_matrix
     new_quaternions = matrix_to_quaternion(gaussian_rotation_matrix)
     G._rotation = new_quaternions
@@ -133,9 +118,6 @@ def rotate_by_matrix(G, rotation_matrix, keep_sh_degree: bool = True):
         print("set sh_degree=0 when rotation transform enabled")
         G.sh_degrees = 0
     G._features_rest = transform_shs(G._features_rest, rotation_matrix)
-
-
-
 
 def gaus_copy(g, gnew):
     gnew._xyz = g._xyz
@@ -145,28 +127,10 @@ def gaus_copy(g, gnew):
     gnew._rotation = g._rotation
     gnew._opacity = g._opacity
 
-
-
-
 def rescale(g, scale):
     sc = scale.item()
     g._xyz = g._xyz * sc
     g._scaling = g._scaling + torch.log(scale)
-
-
-
-#rubbish
-def pos_gen(g):
-    coor = g._xyz
-    # com = coor.mean(dim = 0)
-    com = maxdens(g)
-    min_vals, _ = torch.min(coor, dim=0)
-    max_vals, _ = torch.max(coor, dim=0)
-    mid = (min_vals + max_vals) / 2
-    rot = vec2rot(com.cpu().detach().numpy(), mid.cpu().detach().numpy())
-    print(rot, mid.cpu().detach().numpy())
-    return rot, mid.cpu().detach().numpy()/7
-
 
 def vec2rot(A, B):
     direction = A - B
@@ -205,3 +169,75 @@ def measure_blurriness(img):
     variance_np = np.var(laplacian_np)
     
     return variance_np
+
+
+
+#adapted from o3 library
+def wigner_D(l, alpha, beta, gamma):
+    alpha, beta, gamma = torch.broadcast_tensors(alpha, beta, gamma)
+    alpha = alpha[..., None, None] % (2 * torch.pi)
+    beta = beta[..., None, None] % (2 * torch.pi)
+    gamma = gamma[..., None, None] % (2 * torch.pi)
+    X = so3_generators(l).to('cuda')
+    return torch.matrix_exp(alpha * X[1]) @ torch.matrix_exp(beta * X[0]) @ torch.matrix_exp(gamma * X[1])
+
+def so3_generators(l) -> torch.Tensor:
+    X = su2_generators(l)
+    Q = change_basis_real_to_complex(l)
+    X = torch.conj(Q.T) @ X @ Q
+    assert torch.all(torch.abs(torch.imag(X)) < 1e-5)
+    return torch.real(X)
+
+def su2_generators(j) -> torch.Tensor:
+    m = torch.arange(-j, j)
+    raising = torch.diag(-torch.sqrt(j * (j + 1) - m * (m + 1)), diagonal=-1)
+
+    m = torch.arange(-j + 1, j + 1)
+    lowering = torch.diag(torch.sqrt(j * (j + 1) - m * (m - 1)), diagonal=1)
+
+    m = torch.arange(-j, j + 1)
+    return torch.stack([
+        0.5 * (raising + lowering),  # x (usually)
+        torch.diag(1j * m),  # z (usually)
+        -0.5j * (raising - lowering),  # -y (usually)
+    ], dim=0)
+
+
+def change_basis_real_to_complex(l: int, dtype=None, device=None) -> torch.Tensor:
+    # https://en.wikipedia.org/wiki/Spherical_harmonics#Real_form
+    q = torch.zeros((2 * l + 1, 2 * l + 1), dtype=torch.complex128)
+    for m in range(-l, 0):
+        q[l + m, l + abs(m)] = 1 / 2**0.5
+        q[l + m, l - abs(m)] = -1j / 2**0.5
+    q[l, l] = 1
+    for m in range(1, l + 1):
+        q[l + m, l + abs(m)] = (-1)**m / 2**0.5
+        q[l + m, l - abs(m)] = 1j * (-1)**m / 2**0.5
+    q = (-1j)**l * q  # Added factor of 1j**l to make the Clebsch-Gordan coefficients real
+
+    dtype, device = explicit_default_types(dtype, device)
+    dtype = {
+        torch.float32: torch.complex64,
+        torch.float64: torch.complex128,
+    }[dtype]
+    # make sure we always get:
+    # 1. a copy so mutation doesn't ruin the stored tensors
+    # 2. a contiguous tensor, regardless of what transpositions happened above
+    return q.to(dtype=dtype, device=device, copy=True, memory_format=torch.contiguous_format)
+
+
+def explicit_default_types(dtype, device):
+    """A torchscript-compatible type resolver"""
+    if dtype is None:
+        dtype = _torch_get_default_dtype()
+    if device is None:
+        device = torch_get_default_device()
+    return dtype, device
+
+def _torch_get_default_dtype() -> torch.dtype:
+    """A torchscript-compatible version of torch.get_default_dtype()"""
+    return torch.empty(0).dtype
+
+
+def torch_get_default_device() -> torch.device:
+    return torch.empty(0).device

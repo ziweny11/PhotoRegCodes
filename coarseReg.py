@@ -4,15 +4,16 @@ from dust3r.model import AsymmetricCroCo3DStereo
 from dust3r.image_pairs import make_pairs
 from dust3r.utils.image import load_images
 from dust3r.cloud_opt import global_aligner, GlobalAlignerMode
+import os
 
 
+#return numpy R,T from trans matrix
 def extract_RT(m):
     if m.shape[0] < 2:
         raise ValueError("The input tensor must contain at least two matrices.")
-
     matrix = m[1]
-    R = matrix[:3, :3].numpy()
-    T = matrix[:3, 3].numpy()
+    R = matrix[:3, :3]
+    T = matrix[:3, 3]
 
     return R, T
 
@@ -28,17 +29,12 @@ def get_args_parser():
     parser.add_argument('--image_size', type=int, default=512, help='Input image size')
     return parser
 
-def coarseReg(image_paths, weights, model_name, device, image_size):
-    # Load the model based on either direct weights or model name
-    if weights:
-        model = AsymmetricCroCo3DStereo.from_pretrained(weights).to(device)
-    elif model_name:
-        model = AsymmetricCroCo3DStereo.from_pretrained(f"naver/{model_name}").to(device)
-    else:
-        raise ValueError("Either --weights or --model_name must be provided.")
+def coarseReg(image1_path, image2_path, device='cuda', image_size=512):
+    model_path = os.path.join(os.path.dirname(image1_path), "DUSt3R_ViTLarge_BaseDecoder_512_dpt.pth")
+    model = AsymmetricCroCo3DStereo.from_pretrained(model_path).to(device)
     
     # Load images
-    imgs = load_images(image_paths, size=image_size)
+    imgs = load_images([image1_path, image2_path], size=image_size)
     pairs = make_pairs(imgs, scene_graph='complete')
 
     # Run inference

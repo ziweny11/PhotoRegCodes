@@ -42,6 +42,7 @@ def campick(g1, g2, extrinsics1, extrinsics2, dataset, pipe):
 
 
     d2list1 = []
+    # cnt = 0
     for key in list(extrinsics1.keys()):
         img = extrinsics1[key]
         qvec, tvec = img.qvec, img.tvec
@@ -53,7 +54,6 @@ def campick(g1, g2, extrinsics1, extrinsics2, dataset, pipe):
         img1 = render(cam_pos, g1, pipe, background, scaling_modifer)["render"]
         dv1 = classify_image(img1)
         d2list1.append((dv1, rotmat, tvec))
-
     d2list2 = []
     for key in list(extrinsics2.keys()):
         img = extrinsics2[key]
@@ -72,20 +72,23 @@ def campick(g1, g2, extrinsics1, extrinsics2, dataset, pipe):
 
     for v1, r1, t1 in d2list1:
         for v2, r2, t2 in d2list2:
-            # v1, r1, t1 = d2list1[13]
-            # v2, r2, t2 = d2list2[22]
             cos_sim = F.cosine_similarity(v1, v2, dim = 0)
-            if cos_sim > max_sim and cos_sim < 0.8:
+            if cos_sim > max_sim and cos_sim < 0.91:
                 max_sim = cos_sim
                 res = (r1, t1, r2, t2)
     r1, t1, r2, t2 = res
     cam_pos1 = myMiniCam3(512, 336, r1, t1, fovx, fovy, znear, zfar)
-    img1 = render(cam_pos1, g1, pipe, background, scaling_modifer)["render"]
+    I1 = render(cam_pos1, g1, pipe, background, scaling_modifer)
+    img1 = I1["render"]
+    dep1 = I1["depth"]
+    wei1 = I1["weight"]
     cam_pos2 = myMiniCam3(512, 336, r2, t2, fovx, fovy, znear, zfar)
-    img2 = render(cam_pos2, g2, pipe, background, scaling_modifer)["render"]
-    print (res)
-    print(max_sim)
-    return img1, img2, r1, t1, r2, t2
+    I2 = render(cam_pos2, g2, pipe, background, scaling_modifer)
+    img2 = I2["render"]
+    dep2 = I2["depth"]
+    wei2 = I2["weight"]
+    print("found img pair with sim:", max_sim)
+    return img1, img2, r1, t1, r2, t2, dep1, dep2, wei1, wei2
     
 def tensor2np(img):
     img = img.permute(1,2,0).cpu().detach().numpy()
@@ -106,7 +109,7 @@ def findpair(dataset, opt, pipe, checkpoint: str, checkpoint2: str, campose1, ca
         (model_params, first_iter) = torch.load(checkpoint2)
         g2.restore(model_params, opt)
         print("Second model loaded from checkpoint2.")
-    print(g1._xyz.shape, g2._xyz.shape)
+    print("Both GS models loaded with following shape:", g1._xyz.shape, g2._xyz.shape)
     bg_color = [1, 1, 1] if dataset.white_background else [0, 0, 0]
     background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
     g1copy = GaussianModel(dataset.sh_degree)
@@ -124,10 +127,12 @@ def findpair(dataset, opt, pipe, checkpoint: str, checkpoint2: str, campose1, ca
     cameras_extrinsic_file2 = os.path.join(path2, "sparse/0", "images.bin")
     cam_extrinsics2 = read_extrinsics_binary(cameras_extrinsic_file2)
     
-    img1, img2, r1, t1, r2, t2 = campick(g1copy, g2copy, cam_extrinsics1, cam_extrinsics2, dataset, pipe)
-    
+    img1, img2, r1, t1, r2, t2, dep1, dep2, wei1, wei2 = campick(g1copy, g2copy, cam_extrinsics1, cam_extrinsics2, dataset, pipe)
     npimg1 = tensor2np(img1)
     npimg2 = tensor2np(img2)
+
+    npimg1 = (npimg1 * 255).astype(np.uint8) if npimg1.dtype != np.uint8 else npimg1
+    npimg2 = (npimg2 * 255).astype(np.uint8) if npimg2.dtype != np.uint8 else npimg2
 
     cv2.imwrite('img1.png', npimg1)
     cv2.imwrite('img2.png', npimg2)

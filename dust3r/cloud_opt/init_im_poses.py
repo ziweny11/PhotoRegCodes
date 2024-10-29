@@ -4,7 +4,7 @@
 # --------------------------------------------------------
 # Initialization functions for global alignment
 # --------------------------------------------------------
-from functools import cache
+from functools import lru_cache as cache
 
 import numpy as np
 import scipy.sparse as sp

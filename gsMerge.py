@@ -22,7 +22,6 @@ def gaus_copy(g, gnew):
     gnew._opacity = g._opacity
 
 
-#RI1, TI1, RI2, TI2, R1, T1, R2, T2
 def gsMerge(dataset: ModelParams, opt: OptimizationParams, pipe: PipelineParams, testing_iterations, saving_iterations, 
              checkpoint_iterations, checkpoint: str, checkpoint2: str, debug_from, RI1, TI1, RI2, TI2, R1, T1, R2, T2, Sscale):
     g1 = GaussianModel(dataset.sh_degree)
@@ -49,7 +48,6 @@ def gsMerge(dataset: ModelParams, opt: OptimizationParams, pipe: PipelineParams,
 
     gaus_copy(g1, g1copy)
     gaus_copy(g2, g2copy)
-    print("here", g1copy._xyz.shape, g2copy._xyz.shape)
     gaus_transform(g1copy, RI1.t(), TI1)
     gaus_transform(g1copy, R1, T1)
     gaus_transform(g2copy, RI2.t(), TI2)
@@ -65,7 +63,7 @@ def gsMerge(dataset: ModelParams, opt: OptimizationParams, pipe: PipelineParams,
 
     test_iteration = 10000
     torch.save((gnew.capture(), test_iteration), "gnew.pth")
-    print("save complete!")
+    print("fused model saved in gnew.pth!")
     while True:       
         if network_gui.conn == None:
             network_gui.try_connect()

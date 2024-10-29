@@ -1,0 +1,4 @@
+# ninja log v5
+0	7833	1730152427290084874	/home/sixsell/PhotoRegCodes/submodules/simple-knn/build/temp.linux-x86_64-cpython-37/simple_knn.o	3c29cc128f032473
+0	18977	1730152438422076915	/home/sixsell/PhotoRegCodes/submodules/simple-knn/build/temp.linux-x86_64-cpython-37/ext.o	5e09f4c372c4a051
+0	36868	1730152456322073122	/home/sixsell/PhotoRegCodes/submodules/simple-knn/build/temp.linux-x86_64-cpython-37/spatial.o	477ecf004074de4

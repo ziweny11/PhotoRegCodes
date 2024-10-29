@@ -1,14 +1,14 @@
-name: photoreg
+name: photoreg4
 channels:
   - pytorch
   - conda-forge
   - nvidia
   - defaults
 dependencies:
-  - python=3.10
+  - python=3.8
   - cmake=3.14.0
-  - cudatoolkit=12.1
-  - pytorch=2.0
+  - cudatoolkit=11.8
+  - pytorch
   - torchvision
   - torchaudio
   - numpy
@@ -20,12 +20,11 @@ dependencies:
   - trimesh
   - tensorboard
   - pyglet<2
+  - open3d
   - pip
   - pip:
       - roma
-      - gradio
       - opencv-python
-      - "huggingface-hub[torch]>=0.22"
       - e3nn
       - pytorch3d
       - submodules/diff-gaussian-rasterization

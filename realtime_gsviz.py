@@ -40,7 +40,6 @@ def training(dataset: ModelParams, opt: OptimizationParams, pipe: PipelineParams
     print(gaussians._xyz.shape)
     bg_color = [1, 1, 1] if dataset.white_background else [0, 0, 0]
     background = torch.tensor(bg_color, dtype=torch.float32, device="cuda")
-    print("this is com ", torch.mean((gaussians._xyz), dim = 0))
     first_iter += 1
     while True:       
         if network_gui.conn == None:
@@ -50,10 +49,8 @@ def training(dataset: ModelParams, opt: OptimizationParams, pipe: PipelineParams
                 net_image_bytes = None
                 custom_cam, do_training, pipe.convert_SHs_python, pipe.compute_cov3D_python, keep_alive, scaling_modifer = network_gui.receive()
                 if custom_cam != None:
-                    custom_cam.printinfo()
                     net_image = render(custom_cam, gaussians, pipe, background, scaling_modifer)["render"]
                     depth_img = render(custom_cam, gaussians, pipe, background, scaling_modifer)["depth"]
-                    print("this is blur", measure_blurriness(net_image))
                     net_image_bytes = memoryview((torch.clamp(net_image, min=0, max=1.0) * 255).byte().permute(1, 2, 0).contiguous().cpu().numpy())
                 network_gui.send(net_image_bytes, dataset.source_path)
             except Exception as e:

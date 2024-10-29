@@ -90,12 +90,6 @@ def render(viewpoint_camera, pc : GaussianModel, pipe, bg_color : torch.Tensor, 
         scales = scales,
         rotations = rotations,
         cov3D_precomp = cov3D_precomp)
-    # print("this is depthmap", depthmap.shape)
-    # Those Gaussians that were frustum culled or had a radius of 0 were not visible.
-    # They will be excluded from value updates used in the splitting criteria.
-
-    # print(depthmap.shape)
-    # print(rendered_image.shape)
     mask = (depthmap > 0).int()
 
     return {"render": rendered_image,

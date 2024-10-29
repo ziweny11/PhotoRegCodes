@@ -47,18 +47,20 @@ if __name__ == "__main__":
     torch.autograd.set_detect_anomaly(args.detect_anomaly)
     #pick choose two cam poses, and store respective images as "img1.png", "img2.png"
     cam1R, cam1T, cam2R, cam2T = findpair(lp.extract(args), op.extract(args), pp.extract(args), args.start_checkpoint, args.start_checkpoint2, args.campose1, args.campose2)
+    print("finish findpair")
     iniR, iniT = coarseReg("img1.png", "img2.png")
+    print("finish CoarseReg")
     cam1Rt = torch.tensor(cam1R, dtype=torch.float32, device="cuda")
     cam1Tt = torch.tensor(cam1T, dtype=torch.float32, device="cuda")
     cam2Rt = torch.tensor(cam2R, dtype=torch.float32, device="cuda")
     cam2Tt = torch.tensor(cam2T, dtype=torch.float32, device="cuda")
     iniRt = torch.tensor(iniR, dtype=torch.float32, device="cuda")
     iniTt = torch.tensor(iniT, dtype=torch.float32, device="cuda")
-    idRt = torch.eye(3).device("cuda")
-    idTt = torch.tensor([0, 0, 0]).device("cuda")
+    idRt = torch.eye(3).to("cuda")
+    idTt = torch.tensor([0, 0, 0]).to("cuda")
     best_loss, offset, rot, Sscale, Tscale = finetuning(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.start_checkpoint2, args.debug_from, 
-                                                        cam1Rt, cam1Tt, cam2Rt, cam2Tt, idRt, idTt, iniRt, iniTt, args.campose1, args.campose2)
+                                                        cam1Rt, cam1Tt, cam2Rt, cam2Tt, idRt, idTt, iniRt, iniTt, args.campose1, args.campose2, ep = 10, it = 800)
+    print("finish finetuning")
     finetunedR = quaternion_to_matrix(rot)
-    #final viz of fused gs
     gsMerge(lp.extract(args), op.extract(args), pp.extract(args), args.test_iterations, args.save_iterations, args.checkpoint_iterations, args.start_checkpoint, args.start_checkpoint2, args.debug_from, 
             cam1Rt, cam1Tt, cam2Rt, cam2Tt, idRt, idTt, finetunedR, Tscale * iniTt + offset, Sscale)

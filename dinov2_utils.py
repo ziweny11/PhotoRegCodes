@@ -1,7 +1,8 @@
 import torch
 import torch.nn.functional as F
+import torchvision
 from torchvision import transforms
-
+import cv2
 model = torch.hub.load('facebookresearch/dinov2', 'dinov2_vits14')
 model.eval()
 
@@ -19,4 +20,3 @@ def classify_image(image_tensor):
     probabilities = F.softmax(logits, dim=1)
 
     return probabilities.squeeze()
-

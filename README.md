@@ -42,7 +42,7 @@ Download the pretrained model for DUSt3R [here](https://download.europe.naverlab
 ### Running the Code
 
 #### Demo
-Download the example dataset from this [Google Drive link](#) and place it in the `PhotoRegCodes` folder.
+Download the example dataset from this [Google Drive link](https://drive.google.com/drive/folders/1CRoKCdS_05VwBg044pWR009QTSkv7vZm?usp=sharing) and place it in the `PhotoRegCodes` folder.
 
 Run the demo with:
 ```

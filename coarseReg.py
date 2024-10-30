@@ -5,15 +5,20 @@ from dust3r.image_pairs import make_pairs
 from dust3r.utils.image import load_images
 from dust3r.cloud_opt import global_aligner, GlobalAlignerMode
 import os
-
+import numpy as np
 
 #return numpy R,T from trans matrix
 def extract_RT(m):
-    if m.shape[0] < 2:
-        raise ValueError("The input tensor must contain at least two matrices.")
-    matrix = m[1]
-    R = matrix[:3, :3]
-    T = matrix[:3, 3]
+    if m.shape[0] < 2 or m.shape[1] < 4 or m.shape[2] < 4:
+        raise ValueError("invalid matrix obtained from dust3r")
+
+    identity = np.eye(4)
+
+    if not np.allclose(m[0], identity):
+        inv_m0 = np.linalg.inv(m[0])
+        m[1] = np.dot(inv_m0, m[1])
+    R = m[1][:3, :3]
+    T = m[1][:3, 3]
 
     return R, T
 

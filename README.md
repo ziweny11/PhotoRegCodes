@@ -65,6 +65,7 @@ Use the following command structure for general datasets:
 python main.py -s path/to/source1 --start_checkpoint path/to/model/chkpntXXX.pth --start_checkpoint2 path/to/model2/chkpntXXX.pth --campose1 path/to/source1 --campose2 path/to/source2
 ```
 `path/to/source` are paths to the <location> of dataset after running convert.py in 3DGS, where the <location> folder should have similar structure as below:
+```
 <location>
 |---images
 |   |---<image 0>
@@ -75,9 +76,11 @@ python main.py -s path/to/source1 --start_checkpoint path/to/model/chkpntXXX.pth
         |---cameras.bin
         |---images.bin
         |---points3D.bin
+```
 
-
-`path/to/model/chkpntXXX.pth` are paths to the output 3DGS model. By default, it is in the output folder in gaussian-splatting after training, where the chkpntXXX.pth is stoed in folder structured like: 
+`path/to/model/chkpntXXX.pth` are paths to the output 3DGS model. By default, it is in the output folder in gaussian-splatting after training, where the chkpntXXX.pth is stoed in folder 
+structured like: 
+```
 <location>
 |---point_cloud
 |   |---...
@@ -85,7 +88,7 @@ python main.py -s path/to/source1 --start_checkpoint path/to/model/chkpntXXX.pth
 |---cfg_args
 |---input.ply
 |---chkpntXXX.pth
-
+```
 You can visualize the result gnew.pth using SIBR the same as in demo.
 
 

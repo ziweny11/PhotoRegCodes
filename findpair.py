@@ -91,9 +91,16 @@ def campick(g1, g2, extrinsics1, extrinsics2, dataset, pipe):
     return img1, img2, r1, t1, r2, t2, dep1, dep2, wei1, wei2
     
 def tensor2np(img):
-    img = img.permute(1,2,0).cpu().detach().numpy()
-    image = cv2.cvtColor(img.astype('float32'), cv2.COLOR_RGB2BGR)
-    return image
+    # Convert from [C, H, W] to [H, W, C] and move to CPU if needed
+    img = img.permute(1, 2, 0).cpu().detach().numpy()
+    
+    # Ensure pixel values are in [0, 1] if float32 or scale if necessary
+    if img.dtype == np.float32 and img.max() > 1.0:
+        img = np.clip(img, 0.0, 1.0)  # Clip to [0, 1]
+    
+    # Convert from RGB to BGR for OpenCV display
+    img_bgr = cv2.cvtColor((img * 255).astype('uint8'), cv2.COLOR_RGB2BGR)
+    return img_bgr
 
 def findpair(dataset, opt, pipe, checkpoint: str, checkpoint2: str, campose1, campose2):
 
@@ -130,9 +137,6 @@ def findpair(dataset, opt, pipe, checkpoint: str, checkpoint2: str, campose1, ca
     img1, img2, r1, t1, r2, t2, dep1, dep2, wei1, wei2 = campick(g1copy, g2copy, cam_extrinsics1, cam_extrinsics2, dataset, pipe)
     npimg1 = tensor2np(img1)
     npimg2 = tensor2np(img2)
-
-    npimg1 = (npimg1 * 255).astype(np.uint8) if npimg1.dtype != np.uint8 else npimg1
-    npimg2 = (npimg2 * 255).astype(np.uint8) if npimg2.dtype != np.uint8 else npimg2
 
     cv2.imwrite('img1.png', npimg1)
     cv2.imwrite('img2.png', npimg2)

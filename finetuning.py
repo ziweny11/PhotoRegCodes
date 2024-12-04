@@ -93,6 +93,8 @@ def filtercam(g1, g2copy, RI1, TI1, extrinsics, dataset, pipe, threshold = 0.1, 
 def finetuning(dataset, opt, pipe, testing_iterations, saving_iterations, checkpoint_iterations, checkpoint: str, checkpoint2: str, debug_from, 
              RI1, TI1, RI2, TI2, R1, T1, R2, T2, campose1, campose2, ep = 100, it = 1000, lr_update_iter = 200, early_stop_threshold = 20, show_images = False):
 
+    torch.autograd.set_detect_anomaly(True)
+    
     g1 = GaussianModel(dataset.sh_degree)
     scene = Scene(dataset, g1)
     g1.training_setup(opt)
@@ -258,10 +260,9 @@ def finetuning(dataset, opt, pipe, testing_iterations, saving_iterations, checkp
             Ll1 = masked_l1_loss(img_new, img_ref, mask_ref, mask_new)
             loss1 = (1.0 - weight) * Ll1 + weight * (1.0 - ssim(img_new, img_ref))
             loss = loss1 + loss2
-            torch.autograd.set_detect_anomaly(True)
-    
-
+            
             loss.backward()
+    
             optimizer.step()
 
             if iter % lr_update_iter == 0:

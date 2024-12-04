@@ -5,7 +5,7 @@ import einops
 from einops import einsum
 import numpy as np
 from utils.general_utils import build_rotation
-
+from myo3 import matrix_to_angles
 
 def transform_shs(shs_feat, rotation_matrix):
     # Ensure all inputs are on the same device, preferably at the start of your function
@@ -19,7 +19,7 @@ def transform_shs(shs_feat, rotation_matrix):
                       [0, 1, 0]], dtype=torch.float32, device=device)
 
     permuted_rotation_matrix = torch.linalg.inv(P) @ rotation_matrix @ P
-    rot_angles = o3._rotation.matrix_to_angles(permuted_rotation_matrix)
+    rot_angles = matrix_to_angles(permuted_rotation_matrix)
 
     a = rot_angles[0].to(device)
     b = rot_angles[1].to(device)
